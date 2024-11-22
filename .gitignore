@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# particular to fluids2d
+myexp
+
+# emacs backup
+*~
+
+# NetCDF file -> shouldn't be any
+*.nc

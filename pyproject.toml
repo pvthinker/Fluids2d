@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fluids2d"
+dynamic = ["version"]
+description = 'A versatile Python CFD code that solves a large class of 2D flows'
+readme = "README.md"
+requires-python = ">=3.9, <3.13"
+license = "MIT"
+keywords = ["CFD", "Geophysical Fluid Dynamics", "Fluid Solver"]
+authors = [
+  { name = "Guillaume Roullet", email = "roullet@univ-brest.fr" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+	     "numpy<1.25.0",
+	     "scipy",
+	     "matplotlib",
+	     "numba",
+	     "netCDF4"
+]
+
+[project.urls]
+Documentation = "https://github.com/pvthinker/fluids2d#readme"
+Issues = "https://github.com/pvthinker/fluids2d/issues"
+Source = "https://github.com/pvthinker/fluids2d"
+
+[tool.hatch.version]
+path = "src/fluids2d/__about__.py"
