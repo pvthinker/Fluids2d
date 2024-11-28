@@ -46,6 +46,17 @@ class Param:
 
         self.nthreads = 1
 
+        self.__parameters__ = get_parameters(self)
+
+    def check_parameters_are_known(self):
+        extra = set(get_parameters(self)).difference(set(self.__parameters__))
+        if len(extra) == 0:
+            return True
+        else:
+            msg = [f"parameter {extra} is unknown",
+                   f"parameters are {self.__parameters__}"]
+            assert False, "\n".join(msg)
+
     def check(self):
 
         models = ["euler", "eulerpsi", "advection", "vectoradv",
@@ -56,3 +67,11 @@ class Param:
         assert self.compflux in methods
         assert self.vortexforce in methods
         assert self.innerproduct in methods+["classic"]
+
+        self.check_parameters_are_known()
+
+
+def get_parameters(self):
+    return [d
+            for d in self.__dir__()
+            if "__" not in d]
