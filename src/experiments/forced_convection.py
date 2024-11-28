@@ -39,10 +39,12 @@ if __name__ == "__main__":
     param.plotvar = "b"
     param.clims = [-0.2, 1.]
 
+    param.nhis = 10
+    param.var_to_store = ["b", "omega", "p"]
+    param.add_parameter("Q")
     param.Q = 0.05
-    # this is how we add a forcing term to the model
-    param.forcing = forcing
 
     model = f2d.Model(param)
+    model.add_forcing(forcing)
     set_initial_state(model)
     model.run()

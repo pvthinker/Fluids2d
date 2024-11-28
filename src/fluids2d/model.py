@@ -6,6 +6,7 @@ from .integrators import get_integrator
 from .timeline import Time
 from .animation import Figure
 from .io import IO
+from .equations import addforcingterm
 
 
 class Model:
@@ -89,3 +90,7 @@ class Model:
     def execute_callbacks(self):
         for func in self.callbacks:
             func(self.param, self.mesh, self.state, self.time)
+
+    def add_forcing(self, forcing):
+        self.integrator.rhs = addforcingterm(
+            self.param, self.mesh, self.integrator.rhs, forcing)

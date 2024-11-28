@@ -205,10 +205,6 @@ def get_rhs_and_diag(param, mesh):
         print("[INFO] add a tracer equation")
         rhs = addtracerequation(param, mesh, rhs, param.tracer)
 
-    if param.forcing:
-        print("[INFO] add a forcing term")
-        rhs = addforcingterm(param, mesh, rhs, param.forcing)
-
     return rhs, diag
 
 
@@ -229,6 +225,8 @@ def addtracerequation(param, mesh, rhs, tracername):
 
 
 def addforcingterm(param, mesh, rhs, forcing):
+    print("[INFO] add a forcing term")
+
     def newrhs(s, ds):
         rhs(s, ds)
         forcing(param, mesh, s, ds)

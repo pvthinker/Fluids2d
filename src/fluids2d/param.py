@@ -41,11 +41,14 @@ class Param:
         self.innerproduct = "weno"
         self.maxorder = 6
 
-        self.forcing = None
         self.tracer = None
 
         self.nthreads = 1
 
+        self.__parameters__ = get_parameters(self)
+
+    def add_parameter(self, name):
+        setattr(self, name, None)
         self.__parameters__ = get_parameters(self)
 
     def check_parameters_are_known(self):
