@@ -19,11 +19,11 @@ class Poisson1d:
         return x
 
     def get_Laplacian(self):
-        n = self.mesh.nx+1
         nz = self.mesh.ny
         dx = self.mesh.dx
         dz = self.mesh.dy
 
+        n = self.mesh.nx+1
         A = np.zeros((n, n))
         G = np.arange(n)
         G[-1] = -1
@@ -39,8 +39,13 @@ class Poisson1d:
                 A[i, i] -= coef[i]
                 A[i, i+1] = coef[i]
 
-        G[-2] = -1
-        return sparse.csc_matrix(A[:-2, :-2]), G
+        if self.mesh.param.xperiodic:
+            raise NotImplemented
+        else:
+            G[-2] = -1
+            A = sparse.csc_matrix(A[:-2, :-2])
+
+        return A, G
 
 
 class Poisson2D:
