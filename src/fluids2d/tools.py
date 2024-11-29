@@ -35,7 +35,7 @@ def run_twin_experiments(model1, model2):
     figure = FigureTwin(model1, model2)
 
     while not model1.time.finished:
-        model1.time.set_dt(model1.state)
+        model1.set_dt()
         model2.time.dt = model1.time.dt
 
         model1.step(1)
