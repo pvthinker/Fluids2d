@@ -23,27 +23,47 @@ class Poisson1d:
         dx = self.mesh.dx
         dz = self.mesh.dy
 
-        n = self.mesh.nx+1
+        xperiodic = self.mesh.param.xperiodic
+        n1 = self.mesh.shape[-1]
+        nx = self.mesh.nx
+        if xperiodic:
+            nh = self.mesh.param.halowidth
+            G = np.zeros((n1,), dtype="i")-1
+            G[nh:nh+nx] = np.arange(nx)
+            ileft, iright = nh, nh+nx-1
+        else:
+            G = np.arange(n1)
+            G[-1] = -1
+            ileft, iright = 0, n1-1
+
+        n = max(G)+1
         A = np.zeros((n, n))
-        G = np.arange(n)
-        G[-1] = -1
-        coef = np.zeros((n,))
-        for i in range(n-1):
+
+        coef = np.zeros((n1,))
+        for i in range(n1):
             coef[i] = nz/dx**2
 
-        for i in range(n-1):
-            if i > 0:
-                A[i, i] -= coef[i-1]
-                A[i, i-1] = coef[i-1]
-            if G[i+1] > -1:
-                A[i, i] -= coef[i]
-                A[i, i+1] = coef[i]
+        for i in range(n1-1):
+            I = G[i]
+            if (I > -1):
+                Jm = (G[i-1]
+                      if i > ileft else
+                      (G[-nh-1] if xperiodic else -1)
+                      )
+                Jp = (G[i+1]
+                      if i < iright else
+                      (G[nh] if xperiodic else -1)
+                      )
+                if Jm > -1:
+                    A[I, Jm] += coef[i-1]
+                    A[I, I] -= coef[i-1]
+                if Jp > -1:
+                    A[I, Jp] += coef[i]
+                    A[I, I] -= coef[i]
 
-        if self.mesh.param.xperiodic:
-            raise NotImplemented
-        else:
-            G[-2] = -1
-            A = sparse.csc_matrix(A[:-2, :-2])
+        # remove last row/col to make the matrix non singular
+        G[G == (n-1)] = -1
+        A = sparse.csc_matrix(A[:-1, :-1])
 
         return A, G
 
