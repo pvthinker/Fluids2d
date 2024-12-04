@@ -12,7 +12,7 @@ class TestModels(unittest.TestCase):
         model = fd.Model(p)
         vortex.set_initial_dipole(model)
         model.run()
-        self.assertEqual(model.time.ite, 22)
+        self.assertEqual(model.time.ite, 25)
 
     def test_advection(self):
         p = fd.Param()
@@ -20,7 +20,7 @@ class TestModels(unittest.TestCase):
         p.animation = False
         p.tend = 10
         model = fd.Model(p)
-        tadv.set_initial_velocity(model, flow="body")
+        tadv.set_initial_velocity(model, flow="bodyrotation")
         tadv.set_initial_tracer(model)
         model.run()
         self.assertEqual(model.time.ite, 37)
