@@ -36,6 +36,7 @@ def get_boussinesq(param, mesh):
 
     def diag(s):
         pressure_projection(mesh, s.U, s.div, s.p, s.u)
+        fill(s.u)
         sharp(mesh, s.u, s.U)
         compute_vorticity(mesh, s.u, s.omega)
         compute_kinetic_energy(param, mesh, s.u, s.U, s.ke)
@@ -58,6 +59,7 @@ def get_hydrostatic(param, mesh):
         sharp(mesh, s.uh, s.U)
         compute_vertical_velocity(mesh, s.U)
         apply_pressure_surface_correction(mesh, s.U, s.uh)
+        fill(mesh, s.uh)
         sharp(mesh, s.uh, s.U)
         compute_vertical_velocity(mesh, s.U)
         compute_hydrostatic_pressure(mesh, s.b, s.p)

@@ -44,7 +44,8 @@ class Mesh:
             maindiag = self.area*f0**2/(g*H)
             self.qg_helmholtz = Poisson2D(self, "v", maindiag=maindiag)
 
-        self.poisson1d = Poisson1d(self)
+        if self.param.model in ["hydrostatic"]:
+            self.poisson1d = Poisson1d(self)
 
     def _allocate(self):
         return np.zeros(self.shape, dtype="i1")
@@ -121,8 +122,12 @@ def get_shape(param):
 def fill_halo_array(param, array):
     if param.xperiodic:
         n = param.halowidth
-        array[:, :n] = array[:, -2*n:-n]
-        array[:, -n:] = array[:, n:2*n]
+        if array.ndim == 2:
+            array[:, :n] = array[:, -2*n:-n]
+            array[:, -n:] = array[:, n:2*n]
+        elif array.ndim == 1:
+            array[:n] = array[-2*n:-n]
+            array[-n:] = array[n:2*n]
 
 
 def set_order(msk, shift, stencil, maxorder):
