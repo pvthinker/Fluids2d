@@ -1,3 +1,12 @@
+_models = ["euler", "eulerpsi", "advection", "vectoradv",
+           "boussinesq", "hydrostatic", "rsw", "qgrsw", "qg"]
+
+_methods = ["weno", "upwind", "centered"]
+_methods_extended = _methods + ["classic"]
+
+_integrators = ["rk3", "ef", "LFRA"]
+
+
 class Param:
     def __init__(self):
 
@@ -46,6 +55,7 @@ class Param:
         self.nthreads = 1
 
         self.__parameters__ = get_parameters(self)
+        self.help()
 
     def add_parameter(self, name):
         setattr(self, name, None)
@@ -62,16 +72,31 @@ class Param:
 
     def check(self):
 
-        models = ["euler", "eulerpsi", "advection", "vectoradv",
-                  "boussinesq", "hydrostatic", "rsw", "qgrsw", "qg"]
-        assert self.model in models
+        assert self.model in _models
 
-        methods = ["weno", "upwind", "centered"]
-        assert self.compflux in methods
-        assert self.vortexforce in methods
-        assert self.innerproduct in methods+["classic"]
+        assert self.compflux in _methods
+        assert self.vortexforce in _methods
+        assert self.innerproduct in _methods_extended
+
+        assert self.integrator in _integrators
 
         self.check_parameters_are_known()
+
+    def help(self):
+        doc = ["Valid values for string parameters"]
+        doc += [f"  - {bold('model')}: " + ", ".join(_models)]
+        doc += [f"  - {bold('integrator')}: " + ", ".join(_integrators)]
+        doc += [f"  - {bold('compflux')} (U*q): " + ", ".join(_methods)]
+        doc += [f"  - {bold('vortexforce')} (omega x U): " +
+                ", ".join(_methods)]
+        doc += [f"  - {bold('innerproduct')} (U.u): " +
+                ", ".join(_methods_extended)]
+        doc += [""]
+        print("\n".join(doc))
+
+
+def bold(s):
+    return '\033[1m'+'\033[94m'+s+'\033[0m'
 
 
 def get_parameters(self):
