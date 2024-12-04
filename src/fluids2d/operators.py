@@ -167,6 +167,7 @@ def apply_pressure_surface_correction(mesh, U, uh):
     # U.y[-1] should not be masked
     # otherwise the poisson solve will return ps=0
     ps = mesh.poisson1d.solve(-U.y[-1])
+    mesh.fill(ps)
     uh[:, 1:] -= np.diff(ps)
     uh *= mesh.mskx
     return ps
