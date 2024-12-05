@@ -19,18 +19,18 @@ def flux_1d_akima(flx, U, q):
     flx[[0, -1]] = 0
 
 
-@njit("f8(f8,f8)")
-def ce2(qm, qp):
+@njit("f8(f8,f8,f8)")
+def ce2(U, qm, qp):
     return (qm+qp)*0.5
 
 
-@njit("f8(f8,f8,f8,f8)")
-def ce4(qmm, qm, qp, qpp):
+@njit("f8(f8,f8,f8,f8,f8)")
+def ce4(U, qmm, qm, qp, qpp):
     return (-qmm+7*(qm+qp)-qpp)/12
 
 
-@njit("f8(f8,f8,f8,f8,f8,f8)")
-def ce6(qmmm, qmm, qm, qp, qpp, qppp):
+@njit("f8(f8,f8,f8,f8,f8,f8,f8)")
+def ce6(U, qmmm, qmm, qm, qp, qpp, qppp):
     return (qmmm-8*(qmm+qpp)+37*(qm+qp)+qppp)/60
 
 
@@ -189,153 +189,73 @@ def flxup5(U, qmmm, qmm, qm, qp, qpp, qppp):
     return up5(qmmm, qmm, qm, qp, qpp) if U > 0 else up5(qppp, qpp, qp, qm, qmm)
 
 
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def compflux_on_interval(flx, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            flx[i] = flx5(U[i], q[i-3*s], q[i-2*s],
-                          q[i-s], q[i],
-                          q[i+s], q[i+2*s])*U[i]
-        elif o[i] > 2:
-            flx[i] = flx3(U[i], q[i-2*s],
-                          q[i-s], q[i],
-                          q[i+s])*U[i]
-        elif o[i] > 0:
-            flx[i] = flx1(U[i], q[i-s], q[i])*U[i]
-        else:
-            flx[i] = 0
+_fluxes = {
+    "weno": (flx1, flx3, flx5),
+    "upwind": (flx1, flxup3, flxup5),
+    "centered": (ce2, ce4, ce6)
+}
 
 
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def compflux_on_interval_upwind(flx, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            flx[i] = flxup5(U[i], q[i-3*s], q[i-2*s],
+def get_compflux_on_interval(method):
+    f1, f3, f5 = _fluxes[method]
+
+    @njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
+    def compflux_on_interval(flx, U, q, o, s, i0, i1):
+        for i in range(i0, i1):
+            if o[i] > 4:
+                flx[i] = f5(U[i], q[i-3*s], q[i-2*s],
                             q[i-s], q[i],
                             q[i+s], q[i+2*s])*U[i]
-        elif o[i] > 2:
-            flx[i] = flxup3(U[i], q[i-2*s],
+            elif o[i] > 2:
+                flx[i] = f3(U[i], q[i-2*s],
                             q[i-s], q[i],
                             q[i+s])*U[i]
-        elif o[i] > 0:
-            flx[i] = flx1(U[i], q[i-s], q[i])*U[i]
-        else:
-            flx[i] = 0
+            elif o[i] > 0:
+                flx[i] = f1(U[i], q[i-s], q[i])*U[i]
+            else:
+                flx[i] = 0
+    return compflux_on_interval
 
 
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def compflux_on_interval_centered(flx, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            flx[i] = ce6(q[i-3*s], q[i-2*s],
-                         q[i-s], q[i],
-                         q[i+s], q[i+2*s])*U[i]
-        elif o[i] > 2:
-            flx[i] = ce4(q[i-2*s],
-                         q[i-s], q[i],
-                         q[i+s])*U[i]
-        elif o[i] > 0:
-            flx[i] = ce2(q[i-s], q[i])*U[i]
-        else:
-            flx[i] = 0
+def get_vortexforce_on_interval(method):
+    f1, f3, f5 = _fluxes[method]
 
-
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4,i4,i4)")
-def vortexforce_on_interval(du, V, q, o, s, s2, sign, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flx5(Vm, q[i-2*s], q[i-s], q[i],
-                              q[i+s], q[i+2*s], q[i+3*s])*Vm
-        elif o[i] > 2:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flx3(Vm, q[i-s], q[i], q[i+s], q[i+2*s])*Vm
-        elif o[i] > 0:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flx1(Vm, q[i], q[i+s])*Vm
-        else:
-            du[i] = 0
-
-
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4,i4,i4)")
-def vortexforce_on_interval_upwind(du, V, q, o, s, s2, sign, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flxup5(Vm, q[i-2*s], q[i-s], q[i],
+    @njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4,i4,i4)")
+    def vortexforce_on_interval(du, V, q, o, s, s2, sign, i0, i1):
+        for i in range(i0, i1):
+            if o[i] > 4:
+                Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
+                du[i] = sign*f5(Vm, q[i-2*s], q[i-s], q[i],
                                 q[i+s], q[i+2*s], q[i+3*s])*Vm
-        elif o[i] > 2:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flxup3(Vm, q[i-s], q[i], q[i+s], q[i+2*s])*Vm
-        elif o[i] > 0:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*flx1(Vm, q[i], q[i+s])*Vm
-        else:
-            du[i] = 0
+            elif o[i] > 2:
+                Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
+                du[i] = sign*f3(Vm, q[i-s], q[i], q[i+s], q[i+2*s])*Vm
+            elif o[i] > 0:
+                Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
+                du[i] = sign*f1(Vm, q[i], q[i+s])*Vm
+            else:
+                du[i] = 0
+    return vortexforce_on_interval
 
 
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4,i4,i4)")
-def vortexforce_on_interval_centered(du, V, q, o, s, s2, sign, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*ce6(q[i-2*s], q[i-s], q[i],
-                             q[i+s], q[i+2*s], q[i+3*s])*Vm
-        elif o[i] > 2:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*ce4(q[i-s], q[i], q[i+s], q[i+2*s])*Vm
-        elif o[i] > 0:
-            Vm = 0.25*(V[i]+V[i+s]+V[i-s2]+V[i+s-s2])
-            du[i] = sign*ce2(q[i], q[i+s])*Vm
-        else:
-            du[i] = 0
+def get_innerproduct_on_interval(method):
+    f1, f3, f5 = _fluxes[method]
 
-
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def innerproduct_on_interval(ke, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flx5(Um, q[i-2*s], q[i-s], q[i],
-                          q[i+s], q[i+2*s], q[i+3*s])*Um
-        elif o[i] > 2:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flx3(Um, q[i-s], q[i], q[i+s], q[i+2*s])*Um
-        elif o[i] > 0:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flx1(Um, q[i], q[i+s])*Um
-
-
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def innerproduct_on_interval_upwind(ke, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flxup5(Um, q[i-2*s], q[i-s], q[i],
+    @njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
+    def innerproduct_on_interval(ke, U, q, o, s, i0, i1):
+        for i in range(i0, i1):
+            if o[i] > 4:
+                Um = 0.5*(U[i]+U[i+s])
+                ke[i] += f5(Um, q[i-2*s], q[i-s], q[i],
                             q[i+s], q[i+2*s], q[i+3*s])*Um
-        elif o[i] > 2:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flxup3(Um, q[i-s], q[i], q[i+s], q[i+2*s])*Um
-        elif o[i] > 0:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += flx1(Um, q[i], q[i+s])*Um
+            elif o[i] > 2:
+                Um = 0.5*(U[i]+U[i+s])
+                ke[i] += f3(Um, q[i-s], q[i], q[i+s], q[i+2*s])*Um
+            elif o[i] > 0:
+                Um = 0.5*(U[i]+U[i+s])
+                ke[i] += f1(Um, q[i], q[i+s])*Um
 
-
-@njit("void(f8[:],f8[:],f8[:],i1[:],i4,i4,i4)")
-def innerproduct_on_interval_centered(ke, U, q, o, s, i0, i1):
-    for i in range(i0, i1):
-        if o[i] > 4:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += ce6(q[i-2*s], q[i-s],
-                         q[i], q[i+s],
-                         q[i+2*s], q[i+3*s])*Um
-        elif o[i] > 2:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += ce4(q[i-s], q[i],
-                         q[i+s], q[i+2*s])*Um
-        elif o[i] > 0:
-            Um = 0.5*(U[i]+U[i+s])
-            ke[i] += ce2(q[i], q[i+s])*Um
+    return innerproduct_on_interval
 
 
 # flatten operator
@@ -369,18 +289,11 @@ def innerproduct(ke, U, u, o, s, funcname, nthreads=1):
     func(f(ke), f(U), f(u), f(o), s, 0, ke.size)
 
 
-VortexForce = {
-    "weno": vortexforce_on_interval,
-    "upwind": vortexforce_on_interval_upwind,
-    "centered": vortexforce_on_interval_centered}
+CompFlux = {method: get_compflux_on_interval(method)
+            for method in _fluxes}
 
-CompFlux = {
-    "weno": compflux_on_interval,
-    "upwind": compflux_on_interval_upwind,
-    "centered": compflux_on_interval_centered}
+VortexForce = {method: get_vortexforce_on_interval(method)
+               for method in _fluxes}
 
-InnerProduct = {
-    "weno": innerproduct_on_interval,
-    "upwind": innerproduct_on_interval_upwind,
-    "centered": innerproduct_on_interval_centered,
-}
+InnerProduct = {method: get_innerproduct_on_interval(method)
+                for method in _fluxes}
