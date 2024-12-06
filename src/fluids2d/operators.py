@@ -153,7 +153,6 @@ def addbuoyancy(mesh, b, du):
 
 
 def compute_vertical_velocity(mesh, U):
-    # *mesh.msky[1:,:-1]
     U.y[1:, :-1] = -np.cumsum(np.diff(U.x[:-1, :], axis=1), axis=0)
 
 

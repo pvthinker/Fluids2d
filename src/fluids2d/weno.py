@@ -12,7 +12,6 @@ def flux_1d_akima(flx, U, q):
     dq[1:-1] = q[1:]-q[:-1]
     dq[0] = dq[1]
     dq[-1] = dq[-2]
-    # cf = 2*np.maximum(dq[1:]*dq[:-1],eps)/(dq[1:]+dq[:-1])
     cf = akima_threshold(dq[1:], dq[:-1])
 
     flx[1:-1] = U[1:-1]*0.5*(q[1:]+q[:-1] - (cf[1:]-cf[:-1])*(1/3))
