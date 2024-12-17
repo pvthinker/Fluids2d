@@ -100,6 +100,40 @@ def weno3z(qm, q0, qp):
     return qi_weno3
 
 
+@njit("f8(f8, f8,f8, f8, f8)")
+def cweno3z(U, qmm, qm, qp, qpp):
+    """
+    3-points non-linear left-biased stencil reconstruction:
+
+    qm-----q0--x--qp
+
+    An improved weighted essentially non-oscillatory scheme for hyperbolic
+    conservation laws, Borges et al, Journal of Computational Physics 227 (2008).
+    """
+    eps = 1e-14
+
+    qi1 = -1./2.*qmm + 3./2.*qm
+    qi2 = 1./2.*(qm + qp)
+    qi3 = -1./2.*qpp + 3./2.*qp
+
+    if U > 0:
+        beta1 = (qm-qmm)**2
+        beta2 = (qp-qm)**2
+    else:
+        beta1 = (qp-qpp)**2
+        beta2 = (qp-qm)**2
+
+    tau = np.abs(beta2-beta1)
+
+    g1, g2 = 1./3., 2./3.
+    w1 = g1 * (1. + tau / (beta1 + eps))
+    w2 = g2 * (1. + tau / (beta2 + eps))
+
+    qi_weno3 = (w1*(qi1+qi3)*0.5 + w2*qi2) / ((w1 + w2))
+
+    return qi_weno3
+
+
 @njit("f8(f8,f8,f8,f8,f8)")
 def weno5(qmm, qm, q0, qp, qpp):
     """
@@ -163,6 +197,109 @@ def weno5z(qmm, qm, q0, qp, qpp):
     return qi_weno5
 
 
+@njit("f8(f8,f8,f8,f8,f8,f8,f8)")
+def cweno5z(U, qmmm, qmm, qm, qp, qpp, qppp):
+    """
+    5-points non-linear left-biased stencil reconstruction
+
+    qmm----qm-----q0--x--qp----qpp
+
+    An improved weighted essentially non-oscillatory scheme for hyperbolic
+    conservation laws, Borges et al, Journal of Computational Physics 227 (2008)
+    """
+    eps = 1e-16
+
+    qi1 = 1./3.*qmmm - 7./6.*qmm + 11./6.*qm
+    qi2 = -1./6.*qmm + 5./6.*qm + 1./3.*qp
+    qi3 = 1./3.*qm + 5./6.*qp - 1./6.*qpp
+
+    qi4 = 1./3.*qp + 5./6.*qm - 1./6.*qmm
+    qi5 = -1./6.*qpp + 5./6.*qp + 1./3.*qm
+    qi6 = 1./3.*qppp - 7./6.*qpp + 11./6.*qp
+
+    k1, k2 = 13./12., 0.25
+
+    beta1 = k1 * (qmmm-2*qmm+qm)**2 + k2 * (qmmm-4*qmm+3*qm)**2
+    beta2 = k1 * (qmm-2*qm+qp)**2 + k2 * (qmm-qp)**2
+    beta3 = k1 * (qm-2*qp+qpp)**2 + k2 * (3*qm-4*qp+qpp)**2
+
+    beta6 = k1 * (qmmm-2*qmm+qm)**2 + k2 * (qmmm-4*qmm+3*qm)**2
+    beta5 = k1 * (qmm-2*qm+qp)**2 + k2 * (qmm-qp)**2
+    beta4 = k1 * (qm-2*qp+qpp)**2 + k2 * (3*qm-4*qp+qpp)**2
+
+    tau5p = np.abs(beta1 - beta3)
+    tau5m = np.abs(beta6 - beta4)
+
+    g1, g2, g3 = 0.1, 0.6, 0.3
+
+    w1 = g1 * (1 + tau5p / (beta1 + eps))
+    w2 = g2 * (1 + tau5p / (beta2 + eps))
+    w3 = g3 * (1 + tau5p / (beta3 + eps))
+
+    w6 = g1 * (1 + tau5m / (beta6 + eps))
+    w5 = g2 * (1 + tau5m / (beta5 + eps))
+    w4 = g3 * (1 + tau5m / (beta4 + eps))
+
+    # if U>0:
+    #     qrec = (w1*qi1 + w2*qi2 + w3*qi3) / (w1 + w2 + w3)
+    # else:
+    #     qrec = (w6*qi6 + w5*qi5 + w4*qi4) / (w6 + w5 + w4)
+
+    qp = (w1*qi1 + w2*qi2 + w3*qi3) / (w1 + w2 + w3)
+    qm = (w6*qi6 + w5*qi5 + w4*qi4) / (w4 + w5 + w6)
+    qrec = (qp+qm)*0.5
+
+    return qrec
+
+
+@njit("f8(f8,f8,f8,f8,f8,f8,f8)")
+def cweno5z_v0(U, qmmm, qmm, qm, qp, qpp, qppp):
+    """
+    5-points non-linear left-biased stencil reconstruction
+
+    qmm----qm-----q0--x--qp----qpp
+
+    An improved weighted essentially non-oscillatory scheme for hyperbolic
+    conservation laws, Borges et al, Journal of Computational Physics 227 (2008)
+    """
+    eps = 1e-16
+
+    qi1 = 1./3.*qmmm - 7./6.*qmm + 11./6.*qm
+    qi2 = -1./6.*qmm + 5./6.*qm + 1./3.*qp
+    qi3 = 1./3.*qm + 5./6.*qp - 1./6.*qpp
+
+    qi4 = 1./3.*qp + 5./6.*qm - 1./6.*qmm
+    qi5 = -1./6.*qpp + 5./6.*qp + 1./3.*qm
+    qi6 = 1./3.*qppp - 7./6.*qpp + 11./6.*qp
+
+    k1, k2 = 13./12., 0.25
+    if U > 0:
+        beta1 = k1 * (qmmm-2*qmm+qm)**2 + k2 * (qmmm-4*qmm+3*qm)**2
+        beta2 = k1 * (qmm-2*qm+qp)**2 + k2 * (qmm-qp)**2
+        beta3 = k1 * (qm-2*qp+qpp)**2 + k2 * (3*qm-4*qp+qpp)**2
+    else:
+        beta1 = k1 * (qmmm-2*qmm+qm)**2 + k2 * (qmmm-4*qmm+3*qm)**2
+        beta2 = k1 * (qmm-2*qm+qp)**2 + k2 * (qmm-qp)**2
+        beta3 = k1 * (qm-2*qp+qpp)**2 + k2 * (3*qm-4*qp+qpp)**2
+
+    tau5 = np.abs(beta1 - beta3)
+
+    g1, g2, g3 = 0.1, 0.6, 0.3
+
+    w1 = g1 * (1 + tau5 / (beta1 + eps))
+    w2 = g2 * (1 + tau5 / (beta2 + eps))
+    w3 = g3 * (1 + tau5 / (beta3 + eps))
+
+    # if U>0:
+    #     qrec = (w1*qi1 + w2*qi2 + w3*qi3) / (w1 + w2 + w3)
+    # else:
+    #     qrec = (w1*qi6 + w2*qi5 + w3*qi4) / (w1 + w2 + w3)
+
+    qrec = (w1*(qi1+qi6) + w2*(qi2+qi5) + w3*(qi3+qi4)) / (2*(w1 + w2 + w3))
+
+    return qrec
+
+
 @njit("f8(f8,f8,f8)")
 def flx1(U, qm, qp):
     return qm if U > 0 else qp
@@ -171,6 +308,11 @@ def flx1(U, qm, qp):
 @njit("f8(f8,f8,f8,f8,f8)")
 def flx3(U, qmm, qm, qp, qpp):
     return weno3z(qmm, qm, qp) if U > 0 else weno3z(qpp, qp, qm)
+
+
+@njit("f8(f8,f8,f8,f8,f8)")
+def cflx3(U, qmm, qm, qp, qpp):
+    return cweno3z(U, qmm, qm, qp, qpp)
 
 
 @njit("f8(f8,f8,f8,f8,f8)")
@@ -184,6 +326,11 @@ def flx5(U, qmmm, qmm, qm, qp, qpp, qppp):
 
 
 @njit("f8(f8,f8,f8,f8,f8,f8,f8)")
+def cflx5(U, qmmm, qmm, qm, qp, qpp, qppp):
+    return cweno5z_v0(U, qmmm, qmm, qm, qp, qpp, qppp)
+
+
+@njit("f8(f8,f8,f8,f8,f8,f8,f8)")
 def flxup5(U, qmmm, qmm, qm, qp, qpp, qppp):
     return up5(qmmm, qmm, qm, qp, qpp) if U > 0 else up5(qppp, qpp, qp, qm, qmm)
 
@@ -191,7 +338,8 @@ def flxup5(U, qmmm, qmm, qm, qp, qpp, qppp):
 _fluxes = {
     "weno": (flx1, flx3, flx5),
     "upwind": (flx1, flxup3, flxup5),
-    "centered": (ce2, ce4, ce6)
+    "centered": (ce2, ce4, ce6),
+    "cweno": (ce2, cflx3, cflx5),
 }
 
 

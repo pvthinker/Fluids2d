@@ -1,10 +1,10 @@
 _models = ["euler", "eulerpsi", "advection", "vectoradv",
            "boussinesq", "hydrostatic", "rsw", "qgrsw", "qg"]
 
-_methods = ["weno", "upwind", "centered"]
+_methods = ["weno", "upwind", "centered", "cweno"]
 _methods_extended = _methods + ["classic"]
 
-_integrators = ["rk3", "ef", "LFRA"]
+_integrators = ["rk3", "ef", "enrk3", "LFRA"]
 
 
 class Param:

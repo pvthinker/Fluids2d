@@ -55,7 +55,8 @@ def LFRA(s, t, dt, rhs, diag, scratch, first=False, gamma=0.1):
 
 rkdocs = {
     "rk3": "Strongly Stably Preserving RK3 (Shu 2003)",
-    "ef": "Euler Forward"
+    "ef": "Euler Forward",
+    "enrk3": "Energy-Preserving RK3 (Celledoni et al. 2009)"
 }
 
 
@@ -105,10 +106,28 @@ def rk3(s, t, dt, rhs, diag, scratch):
     addto(s, -dt/12, ds1, -dt/12, ds2, 2*dt/3, ds3)
     diag(s)
 
+def enrk3(s, t, dt, rhs, diag, scratch):
+    """update s with one iteration of Energy-Conserving RK3"""
+
+    ds1, ds2, ds3 = scratch
+
+    rhs(s, ds1)
+    addto(s, dt/3, ds1)
+    diag(s)
+
+    rhs(s, ds2)
+    addto(s, -dt/3 -5*dt/48, ds1, 15*dt/16, ds2)
+    diag(s)
+
+    rhs(s, ds3)
+    addto(s, 5*dt/48+dt/10, ds1, -7*dt/16, ds2, 2*dt/5, ds3)
+    diag(s)
+
 
 RKintegrators = {
     "rk3": _specs(rk3, 3),
-    "ef": _specs(ef, 1)
+    "ef": _specs(ef, 1),
+    "enrk3": _specs(enrk3, 3)
 }
 
 
