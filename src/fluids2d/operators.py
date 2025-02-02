@@ -149,7 +149,7 @@ def perpgrad(mesh, psi, u, contravariant=False):
 
 
 def addbuoyancy(mesh, b, du):
-    du.y[1:, :] += (0.5*mesh.area)*(b[1:, :]+b[:-1, :])*mesh.msky[1:, :]
+    du.y[1:, :] += (0.5*mesh.dy)*(b[1:, :]+b[:-1, :])*mesh.msky[1:, :]
 
 
 def compute_vertical_velocity(mesh, U):
@@ -184,6 +184,8 @@ def qg_projection(mesh, u, h, pv, psi, anomaly=False):
 
 def qg_inversion(mesh, pv, work, psi):
     centerstovertices(mesh, pv, work)
+    if mesh.param.beta != 0:
+        work -= mesh.f
     mesh.qg_helmholtz.solve(work, psi)
 
 

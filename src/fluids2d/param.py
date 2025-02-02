@@ -23,6 +23,7 @@ class Param:
         self.halowidth = 3
 
         self.f0 = 10.0
+        self.beta = 0.0
         self.g = 1
         self.H = 1
 
