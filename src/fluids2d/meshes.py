@@ -170,3 +170,4 @@ def set_order(msk, shift, stencil, maxorder):
             o[i] = (6 if s6 == 6 else
                     (4 if s4 == 4 else
                      (2 if s2 == 2 else 0)))
+            o[i] = min(o[i], maxorder)
