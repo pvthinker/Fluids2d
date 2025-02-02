@@ -26,13 +26,13 @@ def set_uv_from_omega(model, omega, u, contravariant=False):
     perpgrad(mesh, psi, u, contravariant=contravariant)
 
 
-def run_twin_experiments(model1, model2):
+def run_twin_experiments(model1, model2, hstack=True):
     """Integrate two models synchronously
 
     using the same time step (model1.time.dt)
 
     """
-    figure = FigureTwin(model1, model2)
+    figure = FigureTwin(model1, model2, hstack)
 
     while not model1.time.finished:
         model1.set_dt()
@@ -59,7 +59,7 @@ def browse(model, varname):
     plot model.state.u.x
 
     """
-    array = get_data(varname, model.state)
+    array = get_data(model.mesh, varname, model.state)
     plt.clf()
     plt.pcolormesh(array[:-1, :-1])
     plt.title(varname)
