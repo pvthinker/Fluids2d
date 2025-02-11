@@ -66,7 +66,7 @@ def create_file(param, mesh, state, time):
         for dim, size in dimensions.items():
             nc.createDimension(dim, size)
 
-        for varname in ["x", "y"]:
+        for varname in ["xc", "yc"]:
             v = nc.createVariable(varname, dtype, ("y", "x"))
 
         for varname in timevar:
@@ -84,5 +84,5 @@ def create_file(param, mesh, state, time):
                 v.standard_name = varname
 
         x, y = mesh.xy()
-        nc.variables["x"][:, :] = x
-        nc.variables["y"][:, :] = y
+        nc.variables["xc"][:, :] = x
+        nc.variables["yc"][:, :] = y
