@@ -43,6 +43,8 @@ class Mesh:
             g = self.param.g
             maindiag = self.area*f0**2/(g*H)
             self.qg_helmholtz = Poisson2D(self, "v", maindiag=maindiag)
+            self.hb = 0
+            self.qgcoef = f0/H
 
         if self.param.model in ["hydrostatic"]:
             self.poisson1d = Poisson1d(self)

@@ -43,6 +43,7 @@ def compute_pv(param, mesh, omega, h, pv):
     f = param.f0*mesh.area
     centerstovertices(mesh, h, pv)
     pv[pv > 0] = (f+omega[pv > 0])/pv[pv > 0]
+    pv *= mesh.area
 
 
 def addgrad(mesh, phi, du):
@@ -107,7 +108,7 @@ def div(mesh, U, delta):
 
 
 def compute_pressure(param, mesh, h, p):
-    p[:] = (param.g/mesh.area) * h
+    p[:] = (param.g/mesh.area) * (h+mesh.hb)
 
 
 def pressure_projection(mesh, U, delta, p, u):
@@ -183,7 +184,8 @@ def qg_projection(mesh, u, h, pv, psi, anomaly=False):
 
 
 def qg_inversion(mesh, pv, work, psi):
-    centerstovertices(mesh, pv, work)
+    pvback = mesh.hb*mesh.qgcoef
+    centerstovertices(mesh, pv-pvback, work)
     if mesh.param.beta != 0:
         work -= mesh.f
     mesh.qg_helmholtz.solve(work, psi)
@@ -192,7 +194,7 @@ def qg_inversion(mesh, pv, work, psi):
 def add_stretching(mesh, pv, h, anomaly):
     f0 = mesh.param.f0
     H = mesh.param.H
-    h0 = H*mesh.area
+    h0 = H*mesh.area-mesh.hb
     if anomaly:
         centerstovertices(mesh, h*(-f0/H), pv, addto=True)
     else:
@@ -205,5 +207,5 @@ def thickness_from_psi(mesh, psi, h, anomaly):
     g = mesh.param.g
     verticestocenters(mesh, psi * (f0*mesh.area/g), h)
     if not anomaly:
-        h += (H*mesh.area)
+        h += (H*mesh.area)-mesh.hb
     h *= mesh.msk

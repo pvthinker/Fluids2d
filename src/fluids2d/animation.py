@@ -102,6 +102,7 @@ def get_scaling_factor(mesh, plotvar):
         "ux": 1/dx,
         "uy": 1/dy,
         "h": 1/area,
+        "pv": 1/area,
     }
     if plotvar in coefs:
         coef = coefs[plotvar]
