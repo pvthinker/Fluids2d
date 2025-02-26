@@ -1,4 +1,5 @@
 import numpy as np
+import signal
 from time import time
 from .meshes import Mesh
 from .states import State
@@ -28,12 +29,19 @@ class Model:
         if self.param.animation:
             self.execute_callbacks()
             self.figure = Figure(self.param, self.mesh, self.state, self.time)
+        self.stop = False
+
+        def signal_handler(signal, frame):
+            print('\n hit ctrl-C, stopping', end='')
+            self.stop = True
+
+        signal.signal(signal.SIGINT, signal_handler)
 
         tic = time()
 
         self.save_to_file()
 
-        while not self.time.finished:
+        while (not self.time.finished) and (not self.stop):
             self.set_dt()
             self.step(1)
             self.progress()
@@ -45,6 +53,7 @@ class Model:
 
         elapsed = toc-tic
         self.print_perf(elapsed)
+
         if self.param.generate_mp4:
             self.figure.movie.finalize()
 
