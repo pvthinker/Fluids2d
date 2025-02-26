@@ -1,6 +1,7 @@
 import numpy as np
 from collections import namedtuple
 from .elliptic import *
+from .noslip import get_slipcoef
 
 
 class Mesh:
@@ -32,6 +33,7 @@ class Mesh:
 
     def finalize(self):
         self.set_masks()
+        self.slipcoef = get_slipcoef(self.param, self.msk)
         self.set_stencils(self.param.maxorder)
 
         self.poisson_centers = Poisson2D(self, "c")
@@ -44,7 +46,7 @@ class Mesh:
             maindiag = self.area*f0**2/(g*H)
             self.qg_helmholtz = Poisson2D(self, "v", maindiag=maindiag)
             self.hb = 0
-            self.qgcoef = f0/H
+            self.qgcoef = f0/+H
 
         if self.param.model in ["hydrostatic"]:
             self.poisson1d = Poisson1d(self)
@@ -66,8 +68,11 @@ class Mesh:
         return np.meshgrid(self.x(which), self.y(which))
 
     def set_default_mask(self):
+        nh = self.param.halowidth
         self.msk = self._allocate()
-        self.msk[:-1, :-1] = 1
+        xdx = slice(None) if self.param.xperiodic else slice(nh, -nh)
+        ydx = slice(None) if self.param.yperiodic else slice(nh, -nh)
+        self.msk[ydx, xdx] = 1
 
     def set_masks(self):
         self.mskx = self._allocate()
@@ -89,8 +94,11 @@ class Mesh:
         set_order(self.msk, self.xshift, self.oc.x, maxorder)
         set_order(self.msk, self.yshift, self.oc.y, maxorder)
 
-        set_order(self.mskv, -self.xshift, self.ov.x, maxorder)
-        set_order(self.mskv, -self.yshift, self.ov.y, maxorder)
+        mskv = 1*(self.slipcoef > 0)
+        set_order(mskv, -self.xshift, self.ov.x, maxorder)
+        set_order(mskv, -self.yshift, self.ov.y, maxorder)
+        self.ov.x[:] *= self.msky
+        self.ov.y[:] *= self.mskx
 
         set_order(self.mskx, -self.xshift, self.ok.x, maxorder)
         set_order(self.msky, -self.yshift, self.ok.y, maxorder)
@@ -104,19 +112,22 @@ class Mesh:
 
 
 def get_idx(param, periodic, n):
-    if periodic:
-        return np.arange(n+2*param.halowidth)-param.halowidth
-    else:
-        return np.arange(n+1)
+    return np.arange(n+2*param.halowidth)-param.halowidth
+    # if periodic:
+    #     return np.arange(n+2*param.halowidth)-param.halowidth
+    # else:
+    #     return np.arange(n+1)
 
 
 def get_shape(param):
-    n1 = (param.nx+2*param.halowidth
-          if param.xperiodic else
-          param.nx+1)
-    n2 = (param.ny+2*param.halowidth
-          if param.yperiodic else
-          param.ny+1)
+    n1 = param.nx+2*param.halowidth
+    n2 = param.ny+2*param.halowidth
+    # n1 = (param.nx+2*param.halowidth
+    #       if param.xperiodic else
+    #       param.nx+1)
+    # n2 = (param.ny+2*param.halowidth
+    #       if param.yperiodic else
+    #       param.ny+1)
 
     return (n2, n1)
 

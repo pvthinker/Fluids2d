@@ -74,7 +74,7 @@ def compute_vorticity(mesh, u, omega):
 
         omega[1:, :] = -np.diff(u, axis=0)
 
-    omega *= mesh.mskv
+    omega *= mesh.slipcoef
 
 
 def compute_kinetic_energy(param, mesh, u, U, ke):
