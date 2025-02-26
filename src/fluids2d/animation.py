@@ -23,7 +23,10 @@ class Figure:
         self.fig, self.ax = plt.subplots(figsize=figsize)
         if self.param.generate_mp4:
             self.movie = Movie(self.fig)
-        xy = mesh.xy()
+        x, y = mesh.xy()
+        nh = param.halowidth
+        x = crop(x, nh)
+        y = crop(y, nh)
 
         self.isvector = is_vector(param.plotvar)
 
@@ -32,11 +35,11 @@ class Figure:
             self.quiver = self.ax.quiver(u, v)
         else:
             if param.clims is None:
-                self.im = self.ax.pcolormesh(*xy, self.get_data(state),
+                self.im = self.ax.pcolormesh(x, y, self.get_data(state),
                                              cmap=param.cmap)
             else:
                 vmin, vmax = param.clims
-                self.im = self.ax.pcolormesh(*xy, self.get_data(state),
+                self.im = self.ax.pcolormesh(x, y, self.get_data(state),
                                              cmap=param.cmap, vmin=vmin, vmax=vmax)
             cb = plt.colorbar(self.im, location="bottom")
             cb.set_label(param.plotvar)
@@ -77,31 +80,32 @@ def is_vector(plotvar):
 
 def get_data(mesh, plotvar, state):
     coef = get_scaling_factor(mesh, plotvar)
+    nh = mesh.param.halowidth
     if plotvar[0] in vectors:
         if len(plotvar) == 1:
             var = getattr(state, plotvar)
             n = int(np.sqrt(var.x.size)//25)
-            return subsample(crop(var.x), crop(var.y), n)*coef
+            return subsample(crop(var.x, nh), crop(var.y, nh), n)*coef
         else:
             component = plotvar[1]
             var = getattr(state, plotvar[0])
             array = getattr(var, component)
     else:
         array = getattr(state, plotvar)
-    return crop(array)*coef
+    return crop(array, nh)*coef
 
 
-def crop(array):
-    return array[:-1, :-1]
+def crop(array, nh):
+    return array[nh:-nh, nh:-nh]
 
 
-def get_im_and_ti(fig, ax, param, mesh, xy, state, time):
+def get_im_and_ti(fig, ax, param, mesh, x, y, state, time):
     if param.clims is None:
         im = ax.pcolormesh(
-            *xy, get_data(mesh, param.plotvar, state), cmap=param.cmap)
+            x, y, get_data(mesh, param.plotvar, state), cmap=param.cmap)
     else:
         vmin, vmax = param.clims
-        im = ax.pcolormesh(*xy, get_data(param.plotvar, state),
+        im = ax.pcolormesh(x, y, get_data(param.plotvar, state),
                            cmap=param.cmap, vmin=vmin, vmax=vmax)
     ti = ax.set_title(time.tostring())
     addcolorbartosubplot(fig, ax, im)
@@ -135,7 +139,10 @@ class FigureTwin:
         self.param1 = model1.param
         self.param2 = model1.param
 
-        xy = model1.mesh.xy()
+        x, y = model1.mesh.xy()
+        nh = model1.param.halowidth
+        x = crop(x, nh)
+        y = crop(y, nh)
 
         if hstack:
             stack = (1, 2)
@@ -146,11 +153,11 @@ class FigureTwin:
 
         param, state, time = model1.param, model1.state, model1.time
         self.im1, self.ti1 = get_im_and_ti(
-            fig, axs[0], param, self.mesh1, xy, state, time)
+            fig, axs[0], param, self.mesh1, x, y, state, time)
 
         param, state, time = model2.param, model2.state, model2.time
         self.im2, self.ti2 = get_im_and_ti(
-            fig, axs[1], param, self.mesh2, xy, state, time)
+            fig, axs[1], param, self.mesh2, x, y, state, time)
 
         self.fig = fig
         self.axs = axs
