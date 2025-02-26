@@ -21,6 +21,7 @@ class Param:
         self.xperiodic = False
         self.yperiodic = False
         self.halowidth = 3
+        self.noslip = None
 
         self.f0 = 10.0
         self.beta = 0.0
@@ -28,12 +29,14 @@ class Param:
         self.H = 1
 
         self.tend = 1.0
+        self.dt = 0.0
         self.maxite = 100
         self.dtmax = 9e99
         self.nprint = 1
 
         self.nplot = 5
         self.animation = False
+        self.generate_mp4 = False
         self.plotvar = None
         self.clims = None
         self.cmap = "RdBu_r"

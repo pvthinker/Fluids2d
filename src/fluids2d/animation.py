@@ -2,13 +2,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from .states import vectors
+import matplotlib
+from .movietools import Movie
+
+fontsize = 16
+
+font = {  # 'family': 'normal',
+    # 'weight': 'normal',
+    'size': fontsize}
+
+matplotlib.rc('font', **font)
+matplotlib.rc('axes', titlesize=fontsize)
 
 
 class Figure:
     def __init__(self, param, mesh, state, time):
         self.param = param
         self.mesh = mesh
-        self.fig, self.ax = plt.subplots()
+        figsize = (12.8, 7.2)
+        self.fig, self.ax = plt.subplots(figsize=figsize)
+        if self.param.generate_mp4:
+            self.movie = Movie(self.fig)
         xy = mesh.xy()
 
         self.isvector = is_vector(param.plotvar)
@@ -31,6 +45,8 @@ class Figure:
         self.ax.set_aspect('equal', adjustable='box')
         plt.tight_layout()
         plt.show(block=False)
+        if self.param.generate_mp4:
+            self.movie.addframe()
 
     def get_data(self, state):
         return get_data(self.mesh, self.param.plotvar, state)
@@ -47,6 +63,8 @@ class Figure:
         self.ti.set_text(time.tostring())
         self.fig.canvas.draw()
         plt.pause(1e-6)
+        if self.param.generate_mp4:
+            self.movie.addframe()
 
 
 def subsample(u, v, n):

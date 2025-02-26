@@ -45,12 +45,18 @@ class Model:
 
         elapsed = toc-tic
         self.print_perf(elapsed)
+        if self.param.generate_mp4:
+            self.figure.movie.finalize()
 
     def step(self, nsteps=1):
         for _ in range(nsteps):
             self.integrator.step(self.state, self.time)
 
     def set_dt(self):
+        if self.param.dt > 0:
+            self.time.dt = self.param.dt
+            return
+
         if self.param.model == "rsw":
             g = self.param.g
             H = self.param.H
