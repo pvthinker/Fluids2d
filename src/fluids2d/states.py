@@ -21,7 +21,7 @@ vectors = ["u", "U", "flx", "v"]
 
 def get_specs(param):
     specs = model_specs[param.model]
-    if param.tracer is None:
+    if (param.tracer is None) | (param.tracer == "None"):
         return specs
 
     newspecs = add_tracer_to_spec(specs, param.tracer)

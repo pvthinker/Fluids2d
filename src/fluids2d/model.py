@@ -21,6 +21,7 @@ class Model:
         self.time = Time(param)
         self.io = IO(param, self.mesh, self.state, self.time)
         self.callbacks = []
+        self.diags = []
 
     def set_integrator(self):
         self.integrator = get_integrator(self.param, self.mesh, self.state)
@@ -46,6 +47,7 @@ class Model:
             self.step(1)
             self.progress()
             self.animation()
+            self.compute_diags()
             self.save_to_file()
 
         self.progress()
@@ -54,8 +56,13 @@ class Model:
         elapsed = toc-tic
         self.print_perf(elapsed)
 
+        self.finalize()
+
+    def finalize(self):
         if self.param.generate_mp4:
             self.figure.movie.finalize()
+        for diag in self.diags:
+            diag.finalize()
 
     def step(self, nsteps=1):
         for _ in range(nsteps):
@@ -81,7 +88,8 @@ class Model:
 
     def print_perf(self, elapsed):
         print()
-        perf = elapsed/(self.mesh.nx*self.mesh.ny*self.time.ite)
+        nite = self.time.ite-self.time.ite0
+        perf = elapsed/(self.mesh.nx*self.mesh.ny*nite)
         print(f"Elapsed: {elapsed:.2f} s  perf: {perf:.2e} s/dof")
 
     def progress(self):
@@ -105,6 +113,10 @@ class Model:
     def execute_callbacks(self):
         for func in self.callbacks:
             func(self.param, self.mesh, self.state, self.time)
+
+    def compute_diags(self):
+        for diag in self.diags:
+            diag()
 
     def add_forcing(self, forcing):
         self.integrator.rhs = addforcingterm(

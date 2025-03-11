@@ -5,13 +5,17 @@ class Time:
     def __init__(self, param):
         self.t = 0.0
         self.ite = 0
+        self.t0 = 0
+        self.ite0 = 0
         self.param = param
         self.dt = param.dt if param.dt > 0 else 0.01
         self._c = 0.0
 
     @property
     def finished(self):
-        return (self.t >= self.param.tend) or (self.ite >= self.param.maxite)
+        return ((self.t >= self.t0+self.param.tend)
+                or (self.ite >= self.ite0+self.param.maxite)
+                )
 
     def pushforward(self):
         # instead of doing

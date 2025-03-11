@@ -203,7 +203,7 @@ def get_rhs_and_diag(param, mesh):
 
     rhs, diag = equations[param.model](param, mesh)
 
-    if param.tracer:
+    if param.tracer and (param.tracer != "None"):
         print("[INFO] add a tracer equation")
         rhs = addtracerequation(param, mesh, rhs, param.tracer)
 

@@ -40,17 +40,21 @@ def get_data_from_state(state, varname):
         return v
 
 
-def create_file(param, mesh, state, time):
+def get_atts_from_param(param):
 
     def booltointeger(v): return int(v) if isinstance(v, bool) else v
     def nonetostring(v): return "None" if v is None else v
 
-    def cleanup(dic):
-        for k, v in dic.items():
-            dic[k] = nonetostring(booltointeger(v))
-        return dic
+    atts = param.__dict__.copy()
+    for k, v in atts.items():
+        atts[k] = nonetostring(booltointeger(v))
 
-    atts = cleanup(param.__dict__.copy())
+    return atts
+
+
+def create_file(param, mesh, state, time):
+
+    atts = get_atts_from_param(param)
 
     dimensions = {"x": mesh.shape[1],
                   "y": mesh.shape[0],
