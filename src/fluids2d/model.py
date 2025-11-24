@@ -26,10 +26,17 @@ class Model:
     def set_integrator(self):
         self.integrator = get_integrator(self.param, self.mesh, self.state)
 
+    def open_figure(self):
+        return Figure(self.param, self.mesh, self.state, self.time)
+
     def run(self):
         if self.param.animation:
             self.execute_callbacks()
-            self.figure = Figure(self.param, self.mesh, self.state, self.time)
+            if hasattr(self, "figure"):
+                pass
+            else:
+                self.figure = self.open_figure()
+
         self.stop = False
 
         def signal_handler(signal, frame):
