@@ -26,7 +26,7 @@ def set_initial_velocity(model, flow="dipole"):
 
 
 def set_tracer_from_image(model, imagefile="../data/cow.png"):
-    ny, nx = model.mesh.ny, model.mesh.nx
+    ny, nx = model.state.q.shape
     im = Image.open(imagefile).resize((ny, nx))
     tracer = np.zeros((ny, nx))
     red = im.getchannel("R")
@@ -37,7 +37,7 @@ def set_tracer_from_image(model, imagefile="../data/cow.png"):
     tracer += blue
     tracer = np.flipud(tracer/3)
     tracer = (tracer/256)
-    model.state.q[:-1, :-1] = tracer
+    model.state.q[:, :] = tracer
     model.state.q[:, :] *= model.mesh.msk
 
 
