@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 import fluids2d as f2d
 from fluids2d.integrators import copyto
+from pathlib import Pathlib
 
 
 def gaussian(x, y, x0, y0, r): return np.exp(-((x-x0)**2+(y-y0)**2)/(2*r**2))
@@ -25,8 +26,14 @@ def set_initial_velocity(model, flow="dipole"):
     f2d.tools.set_uv_from_omega(model, omega, U)
 
 
-def set_tracer_from_image(model, imagefile="../data/cow.png"):
+def set_tracer_from_image(model, imagefile=None):
     ny, nx = model.state.q.shape
+    if imagefile is None:
+        p = Path(f2d.__file__).parent.parent
+        imagefile = f"{p}/data/cow.png"
+
+    assert Path(imagefile).is_file(), f"image {imagefile} not found"
+
     im = Image.open(imagefile).resize((ny, nx))
     tracer = np.zeros((ny, nx))
     red = im.getchannel("R")
