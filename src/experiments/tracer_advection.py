@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 import fluids2d as f2d
 from fluids2d.integrators import copyto
-from pathlib import Pathlib
+from pathlib import Path
 
 
 def gaussian(x, y, x0, y0, r): return np.exp(-((x-x0)**2+(y-y0)**2)/(2*r**2))
