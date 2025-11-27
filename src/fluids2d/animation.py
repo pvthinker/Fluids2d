@@ -105,7 +105,7 @@ def get_im_and_ti(fig, ax, param, mesh, x, y, state, time):
             x, y, get_data(mesh, param.plotvar, state), cmap=param.cmap)
     else:
         vmin, vmax = param.clims
-        im = ax.pcolormesh(x, y, get_data(param.plotvar, state),
+        im = ax.pcolormesh(x, y, get_data(mesh, param.plotvar, state),
                            cmap=param.cmap, vmin=vmin, vmax=vmax)
     ti = ax.set_title(time.tostring())
     addcolorbartosubplot(fig, ax, im)
