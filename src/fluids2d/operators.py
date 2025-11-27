@@ -160,7 +160,7 @@ def compute_vertical_velocity(mesh, U):
 def compute_hydrostatic_pressure(mesh, b, p):
     p[:, :] = 0.5*b
     p[-1::-1, :] -= np.cumsum(b[-1::-1, :], axis=0)
-    p *= (mesh.msk*mesh.dx**2)
+    p *= (mesh.msk*mesh.dx)
 
 
 def apply_pressure_surface_correction(mesh, U, uh):
