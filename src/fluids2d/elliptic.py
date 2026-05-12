@@ -25,15 +25,17 @@ class Poisson1d:
 
         xperiodic = self.mesh.param.xperiodic
         n1 = self.mesh.shape[-1]
+        nh = self.mesh.param.halowidth
         nx = self.mesh.nx
         if xperiodic:
-            nh = self.mesh.param.halowidth
             G = np.zeros((n1,), dtype="i")-1
             G[nh:nh+nx] = np.arange(nx)
             ileft, iright = nh, nh+nx-1
         else:
             G = np.arange(n1)
-            G[-1] = -1
+            G = np.zeros((n1,), dtype="i")-1
+            G[nh:nh+nx] = np.arange(nx)
+            #G[-1] = -1
             ileft, iright = 0, n1-1
 
         n = max(G)+1

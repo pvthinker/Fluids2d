@@ -17,8 +17,7 @@ def addvortexforce(param, mesh, U, omega, du):
         weno.vortexforce(du, U.y, omega, mesh.ov.y,
                          mesh.yshift, mesh.xshift, +1, method)
 
-
-def divflux(param, mesh, flx, q, U, dq):
+def tracflux(param, mesh, flx, q, U):
     method = param.compflux
     weno.compflux(flx.x, U.x, q, mesh.oc.x, mesh.xshift,
                   method, param.nthreads)
@@ -26,6 +25,9 @@ def divflux(param, mesh, flx, q, U, dq):
     weno.compflux(flx.y, U.y, q, mesh.oc.y, mesh.yshift,
                   method, param.nthreads)
 
+
+def divflux(param, mesh, flx, q, U, dq):
+    tracflux(param, mesh, flx, q, U)
     div(mesh, flx, dq)
 
 
@@ -158,15 +160,17 @@ def compute_vertical_velocity(mesh, U):
 
 
 def compute_hydrostatic_pressure(mesh, b, p):
-    p[:, :] = 0.5*b
-    p[-1::-1, :] -= np.cumsum(b[-1::-1, :], axis=0)
-    p *= (mesh.msk*mesh.dx)
+    nh = mesh.param.halowidth
+    p[:, :] = -0.5*b
+    p[-nh-2:nh-1:-1, :] -= np.cumsum(b[-nh-1:nh:-1, :], axis=0)
+    p *= (mesh.msk*mesh.dy)
 
 
 def apply_pressure_surface_correction(mesh, U, uh):
-    # U.y[-1] should not be masked
+    nh = mesh.param.halowidth
+    # U.y should not be masked
     # otherwise the poisson solve will return ps=0
-    ps = mesh.poisson1d.solve(-U.y[-1])
+    ps = mesh.poisson1d.solve(-U.y[-nh])
     mesh.fill(ps)
     uh[:, 1:] -= np.diff(ps)
     uh *= mesh.mskx

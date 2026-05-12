@@ -65,7 +65,7 @@ def get_hydrostatic(param, mesh):
         compute_hydrostatic_pressure(mesh, s.b, s.p)
         compute_vorticity(mesh, s.uh, s.omega)
         compute_kinetic_energy(param, mesh, s.uh, s.U, s.ke)
-        fill(mesh, s.omega, s.ke)
+        fill(mesh, s.omega, s.ke, s.p)
 
     return (rhs, diag)
 
