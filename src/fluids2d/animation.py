@@ -145,9 +145,9 @@ class FigureTwin:
         y = crop(y, nh)
 
         if hstack:
-            stack = (1, 2)
-        else:
             stack = (2, 1)
+        else:
+            stack = (1, 2)
 
         fig, axs = plt.subplots(*stack, figsize=(16, 8))
 
