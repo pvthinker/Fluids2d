@@ -10,8 +10,7 @@ def set_initial_buoyancy(model):
     x, y = model.mesh.xy("c")
     b = model.state.b
     Lx = model.param.Lx
-    b[:, :] = (-step(x, Lx/4, model.mesh.dx)
-               + step(x, Lx/2, model.mesh.dx))
+    b[:, :] = step(x, Lx/2, model.mesh.dx) + 1e-8*np.random.normal(size=b.shape)
     b *= model.mesh.msk
     fill(model.mesh, b)
     model.integrator.diag(model.state)
@@ -21,18 +20,18 @@ def set_model(model="boussinesq"):
     param = f2d.Param()
 
     param.model = model
-    param.nx = 200
     param.Lx = 5.
     param.ny = 40
-    param.tend = 50
+    param.nx = int(param.ny*param.Lx)
+    param.tend = 8
     param.maxite = 5_000
     param.cfl = 0.9
-    param.dtmax = 1.
+    param.dtmax = 0.02
     param.integrator = "rk3"
     param.maxorder = 6
-    param.xperiodic = True
+    param.xperiodic = False
 
-    param.nhis = 10
+    param.nhis = 20
     param.var_to_store = ["b", "omega", "U"]
 
     param.compflux = "weno"
@@ -41,9 +40,8 @@ def set_model(model="boussinesq"):
 
     param.nplot = 10
     param.animation = True
-    param.plotvar = "omega"
-    # param.clims = [-1, 1]
-    param.clims = np.asarray([-0.0012, 0.0012])
+    param.plotvar = "b"
+    param.clims = np.asarray([-1, 1])
 
     model = f2d.Model(param)
     set_initial_buoyancy(model)
@@ -56,20 +54,23 @@ if __name__ == "__main__":
 
     plt.ion()
 
-    twinexp = True
+    twinexp = False
 
-    model = set_model()
+    model = set_model(model="boussinesq")
 
     if twinexp:
         model2 = set_model(model="hydrostatic")
-        param = model2.param
-        param.maxorder = 4
+        #
+        # tweak below the parameters of the second experiment
+        #
+        # param = model2.param
+        # param.maxorder = 6
 
-        param.compflux = "upwind"
-        param.vortexforce = "upwind"
-        param.innerproduct = "upwind"
+        # param.compflux = "weno"
+        # param.vortexforce = "weno"
+        # param.innerproduct = "weno"
 
-        f2d.tools.run_twin_experiments(model2, model)
+        f2d.tools.run_twin_experiments(model2, model, hstack=True)
 
     else:
         model.run()
