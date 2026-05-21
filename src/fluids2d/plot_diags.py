@@ -5,22 +5,23 @@ from .dissipation_diag import Dissipation
 from .restart_tools import load_from_restart
 
 def plot_budgets(budget):
+    plot_budgets_from_data(budget.data)
 
-    b = budget
+def plot_budgets_from_data(data):
 
-    t = b.data["time"]
+    t = data["time"]
     dt = np.diff(t)
 
-    K = b.data["KE"]
-    A = b.data["APE"]
-    B = b.data["BPE"]-b.data["BPE"][1]
+    K = data["KE"]
+    A = data["APE"]
+    B = data["BPE"]-data["BPE"][1]
     T = K+A+B
 
-    C = b.data["Conv"]
-    F = b.data["ForcA"]
-    eP = b.data["epsP"]
-    eB = b.data["epsB"]
-    eK = b.data["epsK"]
+    C = data["Conv"]
+    F = data["ForcA"]
+    eP = data["epsP"]
+    eB = data["epsB"]
+    eK = data["epsK"]
     eT = eP-eB
 
     avg = lambda x: 0.5*(x[1:]+x[:-1])
