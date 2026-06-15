@@ -136,11 +136,12 @@ def centerstovertices(mesh, omega, vomega, addto=False):
 
 
 def verticestocenters(mesh, vh, h):
-    m = mesh.mskv
-    coef = m[:-1, :-1]+m[1:, :-1] + m[:-1, 1:]+m[1:, 1:]
-    h[:-1, :-1] = (1/coef)*(vh[:-1, :-1]+vh[1:, :-1] +
+    coef = mesh.imsk[:-1,:-1]
+    #coef = m[:-1, :-1]+m[1:, :-1] + m[:-1, 1:]+m[1:, 1:]
+    #coef[coef!=0] = 1/coef[coef!=0]
+    h[:-1, :-1] = coef*(vh[:-1, :-1]+vh[1:, :-1] +
                             vh[:-1, 1:]+vh[1:, 1:])
-    h *= mesh.msk
+    #h *= mesh.msk
 
 
 def perpgrad(mesh, psi, u, contravariant=False):

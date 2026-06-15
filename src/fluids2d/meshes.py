@@ -84,6 +84,11 @@ class Mesh:
         self.mskv = self._allocate()
         self.mskv[1:, 1:] = (self.msk[:-1, 1:]*self.msk[:-1, :-1]
                              * self.msk[1:, 1:]*self.msk[1:, :-1])
+        self.imsk = np.zeros(self.msk.shape)
+        m = self.mskv
+        self.imsk[1:,1:] = m[:-1, :-1]+m[1:, :-1] + m[:-1, 1:]+m[1:, 1:]
+        self.imsk[self.imsk!=0] = self.msk[self.imsk!=0]/self.imsk[self.imsk!=0]
+
 
     def set_stencils(self, maxorder):
         Stencil = namedtuple("stencil", ("x", "y"))

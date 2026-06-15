@@ -123,7 +123,7 @@ def get_qgrsw(param, mesh):
         # addgrad(mesh, s.ke, ds.u)
         # addgrad(mesh, s.p, ds.u)
         divflux(param, mesh, s.flx, s.h, s.U, ds.h)
-        qg_projection(mesh, ds.u, ds.h, s.pv, s.psi, anomaly=True)
+        qg_projection(mesh, ds.u, ds.h, s.p, s.psi, anomaly=True)
         fill(mesh, ds.u, ds.h)
 
     def diag(s):
