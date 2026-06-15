@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     param.nplot = 5
     param.animation = True
-    param.generate_mp4 = True
+    param.generate_mp4 = False
     param.plotvar = "omega"
 
     param.nhis = 25
