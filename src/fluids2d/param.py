@@ -4,7 +4,7 @@ _models = ["euler", "eulerpsi", "advection", "vectoradv",
 _methods = ["weno", "upwind", "centered", "cweno"]
 _methods_extended = _methods + ["classic"]
 
-_integrators = ["rk3", "rk4", "ef", "enrk3", "LFRA"]
+_integrators = ["rk2", "rk3", "rk4", "ef", "enrk3", "LFRA"]
 
 
 class Param:
