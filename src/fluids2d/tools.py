@@ -24,6 +24,7 @@ def set_uv_from_omega(model, omega, u, contravariant=False):
 
     mesh.poisson_vertices.solve(omega, psi)
     perpgrad(mesh, psi, u, contravariant=contravariant)
+    return psi
 
 
 def run_twin_experiments(model1, model2, hstack=True):
