@@ -12,6 +12,7 @@ model_specs = {
     "rsw": Specs(("u", "h", "U", "omega", "ke", "p", "flx", "pv"), ("u", "h")),
     "qgrsw": Specs(("u", "h", "U", "omega", "ke", "p", "flx", "pv", "psi"), ("u", "h")),
     "qg": Specs(("pv", "U", "h", "flx", "work", "psi"), ("pv", )),
+    "tqg": Specs(("pv", "b", "U", "h", "flx", "work", "psi"), ("pv", "b")),
     "advection": Specs(("q", "U", "flx"), ("q",)),
     "vectoradv": Specs(("v", "U", "omega", "q"), ("v",))
 }

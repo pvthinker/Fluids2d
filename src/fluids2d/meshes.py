@@ -39,7 +39,7 @@ class Mesh:
         self.poisson_centers = Poisson2D(self, "c")
         self.poisson_vertices = Poisson2D(self, "v")
 
-        if self.param.model in ["qg", "qgrsw", "rsw"]:
+        if self.param.model in ["qg", "qgrsw", "rsw", "tqg"]:
             f0 = self.param.f0
             H = self.param.H
             g = self.param.g

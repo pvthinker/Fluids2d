@@ -187,6 +187,30 @@ def get_vectoradv(param, mesh):
     return (rhs, diag)
 
 
+def get_tqg(param, mesh):
+
+    def rhs(s, ds):
+        """RHS for TQG (thermal QG) model using PV transport and streamfunction
+
+        PV is defined on cell centers as a Finite Volume
+        """
+        ds.b.flat = 0
+        ds.pv.flat = 0
+        divflux(param, mesh, s.flx, s.b, s.U, ds.b)
+        divflux(param, mesh, s.flx, s.pv, s.U, ds.pv)
+        # dq/dt + div(u*q) -div(u*b) = 0
+        # db/dt + div(u*b) = 0
+        ds.pv[:,:] -= ds.b
+        fill(mesh, ds.pv)
+        fill(mesh, ds.b)
+
+    def diag(s):
+        qg_inversion(mesh, s.pv, s.work, s.psi)
+        perpgrad(mesh, s.psi, s.U, contravariant=True)
+
+    return (rhs, diag)
+
+
 def get_rhs_and_diag(param, mesh):
 
     equations = {
@@ -197,6 +221,7 @@ def get_rhs_and_diag(param, mesh):
         "rsw": get_rsw,
         "qgrsw": get_qgrsw,
         "qg": get_qg,
+        "tqg": get_tqg,
         "advection": get_advection,
         "vectoradv": get_vectoradv,
     }

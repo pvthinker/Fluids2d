@@ -1,5 +1,5 @@
 _models = ["euler", "eulerpsi", "advection", "vectoradv",
-           "boussinesq", "hydrostatic", "rsw", "qgrsw", "qg"]
+           "boussinesq", "hydrostatic", "rsw", "qgrsw", "qg", "tqg"]
 
 _methods = ["weno", "upwind", "centered", "cweno"]
 _methods_extended = _methods + ["classic"]
