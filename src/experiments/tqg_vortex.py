@@ -11,15 +11,15 @@ https://doi.org/10.3390/fluids10110280
 
 def gaussian(x, y, r): return np.exp(-(x**2+y**2)/(2*r**2))
 
-def compute_Rd(param):
-    return param.f0**2/(param.g*param.H)
+def compute_Rd2(param):
+    return (param.g*param.H)/param.f0**2
 
 def compute_qgpv_from_psi(mesh, pv, psi, U):
-    Rd = compute_Rd(mesh.param)
+    Rd2 = compute_Rd2(mesh.param)
     work = pv[:,:]*0
     perpgrad(mesh, psi, U)
     compute_vorticity(mesh, U, work) # work is on vertices
-    work -= psi*(1/Rd**2)
+    work -= psi*(1/Rd2)*mesh.area # cf 'maindiag' in meshes.py
     verticestocenters(mesh, work, pv) # pv is on centers
 
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     param.plotvar = "b"
 
     param.nhis = 25
-    param.var_to_store = ["pv", "b", "psi", "U"]
+    param.var_to_store = ["pv", "b"]
 
     model = f2d.Model(param)
 
