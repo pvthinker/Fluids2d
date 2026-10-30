@@ -10,7 +10,7 @@ class Movie():
         self.fig = fig
         canvas_width, canvas_height = self.fig.canvas.get_width_height()
         # Open an ffmpeg process
-        outf = '%s.mp4' % name
+        self.filename = f'{name}.mp4'
         videoencoder = None
         for v in ['ffmpeg', 'avconv']:
             if subprocess.call(['which', v], stdout=subprocess.PIPE) == 0:
@@ -30,7 +30,7 @@ class Movie():
                      '-f', 'rawvideo',
                      # tell ffmpeg to expect raw video from the pipe
                      '-i', '-',
-                     '-vcodec', 'libx264', outf)  # output encoding
+                     '-vcodec', 'libx264', self.filename)  # output encoding
 
         devnull = open(os.devnull, 'wb')
         self.process = subprocess.Popen(cmdstring,

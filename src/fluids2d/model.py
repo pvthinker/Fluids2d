@@ -8,7 +8,7 @@ from .timeline import Time
 from .animation import Figure
 from .io import IO
 from .equations import addforcingterm
-
+from .callbacks import Callback
 
 class Model:
     def __init__(self, param):
@@ -19,9 +19,11 @@ class Model:
         self.state = State(param, self.mesh.shape)
         self.set_integrator()
         self.time = Time(param)
-        self.io = IO(param, self.mesh, self.state, self.time)
+        if param.nhis > 0:
+            self.io = IO(param, self.mesh, self.state, self.time)
         self.callbacks = []
         self.diags = []
+        self.interruptions = []
 
     def set_integrator(self):
         self.integrator = get_integrator(self.param, self.mesh, self.state)
@@ -53,6 +55,10 @@ class Model:
             self.set_dt()
             self.step(1)
             self.progress()
+
+            for interruption in self.interruptions:
+                interruption(self.state, self.time)
+
             self.animation()
             self.compute_diags()
             self.save_to_file()
@@ -70,6 +76,7 @@ class Model:
             self.figure.movie.finalize()
         for diag in self.diags:
             diag.finalize()
+        self.finalize_callbacks()
 
     def step(self, nsteps=1):
         for _ in range(nsteps):
@@ -114,12 +121,23 @@ class Model:
             self.figure.update(self.state, self.time)
 
     def save_to_file(self):
-        if self.time.save_to_file:
+        if self.time.save_to_file and hasattr(self, "io"):
             self.io.write(self.state, self.time)
+
+    def add_callback(self, func, name, **kwargs):
+        if hasattr(func, "finalize"):
+            finalize = func.finalize
+        else:
+            finalize = lambda : None
+        self.interruptions.append(Callback(func,name,finalize=finalize,**kwargs))
 
     def execute_callbacks(self):
         for func in self.callbacks:
             func(self.param, self.mesh, self.state, self.time)
+
+    def finalize_callbacks(self):
+        for func in self.interruptions:
+            func.finalize()
 
     def compute_diags(self):
         for diag in self.diags:

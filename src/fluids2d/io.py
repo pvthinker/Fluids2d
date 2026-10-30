@@ -3,14 +3,16 @@ from .states import vectors
 
 
 class IO:
-    def __init__(self, param, mesh, state, time):
+    def __init__(self, param, mesh, state, time, filename=None):
         self.param = param
         self.kt = 0
-        if param.nhis > 0:
-            create_file(param, mesh, state, time)
+        self.filename = param.outputfile if filename is None else filename
+
+        #if param.nhis > 0:
+        create_file(self.filename, param, mesh, state, time)
 
     def write(self, state, time):
-        with Dataset(self.param.outputfile, "r+") as nc:
+        with Dataset(self.filename, "r+") as nc:
 
             nc.variables["t"][self.kt] = time.t
             nc.variables["ite"][self.kt] = time.ite
@@ -52,7 +54,7 @@ def get_atts_from_param(param):
     return atts
 
 
-def create_file(param, mesh, state, time):
+def create_file(filename, param, mesh, state, time):
 
     atts = get_atts_from_param(param)
 
@@ -64,7 +66,7 @@ def create_file(param, mesh, state, time):
 
     dtype = "f"
 
-    with Dataset(param.outputfile, "w", format='NETCDF4') as nc:
+    with Dataset(filename, "w", format='NETCDF4') as nc:
         nc.setncatts(atts)
 
         for dim, size in dimensions.items():
