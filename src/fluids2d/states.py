@@ -1,6 +1,6 @@
-import numpy as np
 from collections import namedtuple
 
+import numpy as np
 
 Specs = namedtuple("specs", ("variables", "prognostic"))
 

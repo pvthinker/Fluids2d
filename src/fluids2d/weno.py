@@ -1,5 +1,6 @@
 import numpy as np
-from numba import njit, jit
+from numba import njit
+
 from .parallel import thread_execution
 
 eps = 1e-40
@@ -129,7 +130,7 @@ def cweno3z(U, qmm, qm, qp, qpp):
     w1 = g1 * (1. + tau / (beta1 + eps))
     w2 = g2 * (1. + tau / (beta2 + eps))
 
-    qi_weno3 = (w1*(qi1+qi3)*0.5 + w2*qi2) / ((w1 + w2))
+    qi_weno3 = (w1*(qi1+qi3)*0.5 + w2*qi2) / (w1 + w2)
 
     return qi_weno3
 

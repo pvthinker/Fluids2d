@@ -1,7 +1,8 @@
 import numpy as np
+
 import fluids2d as f2d
-from fluids2d.operators import compute_vorticity, verticestocenters, perpgrad
-from fluids2d.callbacks import OnlineMovie, History
+from fluids2d.callbacks import History, OnlineMovie
+from fluids2d.operators import compute_vorticity, perpgrad, verticestocenters
 
 """
 this script, based on tqg_vortex.py illustrates how to use callbacks.

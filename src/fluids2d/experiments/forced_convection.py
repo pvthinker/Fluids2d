@@ -1,4 +1,5 @@
 import numpy as np
+
 import fluids2d as f2d
 
 
@@ -22,7 +23,6 @@ def set_forcing(model, Q=5e-2, setup="RB", warmingfrac=0.5):
         Qforc[jtop-nh:-nh, nh+imid:-nh] = -Qcool
 
         def forcing(param, mesh, s, ds):
-            t = mesh.time.t
             coef = 1#np.tanh(t*Q)
             ds.b[jtop-nh:-nh, nh:nh+imid] += Qwarm*coef
             ds.b[jtop-nh:-nh, nh+imid:-nh] -= Qcool*coef
@@ -33,7 +33,7 @@ def set_forcing(model, Q=5e-2, setup="RB", warmingfrac=0.5):
 
 def set_initial_state(model):
     mesh = model.mesh
-    x, y = mesh.xy()
+    _, y = mesh.xy()
     b = model.state.b
     b[:, :] = 3*y+1e-2*np.random.normal(size=mesh.shape)
     b *= mesh.msk

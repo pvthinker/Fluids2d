@@ -1,15 +1,16 @@
-from netCDF4 import Dataset
-from collections import namedtuple
-import numpy as np
-from .io import get_atts_from_param
 import os
+from collections import namedtuple
+
+import numpy as np
+from netCDF4 import Dataset
+
+from .io import get_atts_from_param
 
 
 class Bulk:
     def __init__(self, model):
         self.model = model
 
-        nh = model.param.halowidth
         def domsum(x): return np.sum(x, axis=None)
         def domavg(x): return domsum(x)/domsum(model.mesh.msk)
         self.domavg = domavg
@@ -21,8 +22,8 @@ class Bulk:
         self.data = self.Bulk(*[np.zeros((self.ndiags,))
                                 for _ in variables])
 
-        xv, yv = model.mesh.xy("y")
-        xu, yu = model.mesh.xy("x")
+        xv, _ = model.mesh.xy("y")
+        _, yu = model.mesh.xy("x")
         self.xvyu = (xv, yu)
 
         self.kt = 0

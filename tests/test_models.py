@@ -1,7 +1,8 @@
 import unittest
+
 import fluids2d as fd
-import fluids2d.experiments.vortex as vortex
 import fluids2d.experiments.tracer_advection as tadv
+from fluids2d.experiments import vortex
 
 
 class TestModels(unittest.TestCase):

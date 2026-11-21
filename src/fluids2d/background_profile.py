@@ -1,6 +1,5 @@
 import numpy as np
 from scipy import interpolate
-from scipy import integrate
 
 
 def crop(array,nh=3):

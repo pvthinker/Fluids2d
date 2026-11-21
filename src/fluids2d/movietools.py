@@ -1,8 +1,8 @@
-import subprocess
 import os
+import subprocess
 
 
-class Movie():
+class Movie:
     """ Home made class to generate mp4 """
 
     def __init__(self, fig, name='movie', framerate=30):
@@ -25,18 +25,18 @@ class Movie():
         cmdstring = (videoencoder,
                      '-y', '-r', str(framerate),  # overwrite, 30fps
                      # size of image string
-                     '-s', '%dx%d' % (canvas_width, canvas_height),
+                     '-s', f'{canvas_width}x{canvas_height}',
                      '-pix_fmt', 'argb',  # format
                      '-f', 'rawvideo',
                      # tell ffmpeg to expect raw video from the pipe
                      '-i', '-',
                      '-vcodec', 'libx264', self.filename)  # output encoding
 
-        devnull = open(os.devnull, 'wb')
-        self.process = subprocess.Popen(cmdstring,
-                                        stdin=subprocess.PIPE,
-                                        stdout=devnull,
-                                        stderr=devnull)
+        with open(os.devnull, 'wb') as devnull:
+            self.process = subprocess.Popen(cmdstring,
+                                            stdin=subprocess.PIPE,
+                                            stdout=devnull,
+                                            stderr=devnull)
 
     def addframe(self):
         string = self.fig.canvas.tostring_argb()
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     5/ finalize at then end of the loop
 
     """
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
 
     def f(t):
         """ the function to animate """

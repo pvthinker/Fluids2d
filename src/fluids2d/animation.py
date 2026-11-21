@@ -1,9 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from .states import vectors
 import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from .movietools import Movie
+from .states import vectors
 
 fontsize = 16
 

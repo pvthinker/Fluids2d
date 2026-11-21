@@ -1,8 +1,10 @@
+from pathlib import Path
+
 import numpy as np
 from PIL import Image
+
 import fluids2d as f2d
 from fluids2d.integrators import copyto
-from pathlib import Path
 
 
 def gaussian(x, y, x0, y0, r): return np.exp(-((x-x0)**2+(y-y0)**2)/(2*r**2))
@@ -58,7 +60,7 @@ def set_initial_tracer(model):
 def fliptime(model):
     s = model.state
     if model.integrator == "LFRA":
-        sb, sa, ds = model.integrator.scratch
+        sb, sa, _ = model.integrator.scratch
         copyto(s, sa)
         copyto(sb, s)
         copyto(sa, s)
@@ -71,7 +73,6 @@ def fliptime(model):
 
 if __name__ == "__main__":
 
-    import matplotlib.pyplot as plt
 
     param = f2d.Param()
 

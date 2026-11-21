@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
+
 from .io import IO
 from .movietools import Movie
+
 
 class Callback:
     def __init__(self, func, name, nite=0, deltat=0,finalize=None):

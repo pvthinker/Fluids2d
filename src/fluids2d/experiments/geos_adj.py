@@ -1,5 +1,6 @@
-import fluids2d as f2d
 import numpy as np
+
+import fluids2d as f2d
 from fluids2d.operators import compute_pv, qg_projection
 
 
@@ -32,7 +33,7 @@ def set_initial(model, amp, r0=0.05, flow="dipole"):
         h[:] = H + amp*np.tanh((y-y0)/0.02)
 
     else:
-        raise NotImplemented
+        raise NotImplementedError
 
     h *= (mesh.msk*mesh.area)
     s = model.state

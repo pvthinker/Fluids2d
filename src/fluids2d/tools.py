@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
-from .operators import perpgrad
+
 from .animation import FigureTwin, get_data
+from .operators import perpgrad
 
 
 def set_uv_from_omega(model, omega, u, contravariant=False):

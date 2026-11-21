@@ -1,6 +1,7 @@
 import numpy as np
-from .states import Vector
+
 from . import weno
+from .states import Vector
 
 
 def addvortexforce(param, mesh, U, omega, du):
@@ -179,8 +180,6 @@ def apply_pressure_surface_correction(mesh, U, uh):
 
 
 def qg_projection(mesh, u, h, pv, psi, anomaly=False):
-    f0 = mesh.param.f0
-    H = mesh.param.H
     compute_vorticity(mesh, u, pv)
     add_stretching(mesh, pv, h, anomaly)
     mesh.qg_helmholtz.solve(pv, psi)

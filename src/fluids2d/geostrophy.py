@@ -6,7 +6,9 @@ or a higher balance, from the mass field
 
 """
 import numpy as np
-from fluids2d.operators import centerstovertices, perpgrad, compute_pressure
+
+from fluids2d.operators import centerstovertices, compute_pressure, perpgrad
+
 
 def set_balance(model, nite=1):
     assert model.param.model == "rsw"
@@ -16,7 +18,6 @@ def set_balance(model, nite=1):
     g = param.g
     H = param.H
     f0 = param.f0
-    area = mesh.area
 
     h = state.h
     p = state.p

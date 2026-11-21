@@ -1,7 +1,9 @@
-import numpy as np
 from collections import namedtuple
-from .states import Prognostic
+
+import numpy as np
+
 from .equations import get_rhs_and_diag
+from .states import Prognostic
 
 _specs = namedtuple("specs", ("caller", "nstages"))
 

@@ -1,8 +1,10 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import xarray as xr
+
 from .dissipation_diag import Dissipation
 from .restart_tools import load_from_restart
+
 
 def plot_budgets(budget):
     plot_budgets_from_data(budget.data)
@@ -29,7 +31,7 @@ def plot_budgets_from_data(data):
 
     tm = avg(t)
 
-    fig, axs = plt.subplots(2,2,figsize=(12,7), sharex=True)
+    _, axs = plt.subplots(2,2,figsize=(12,7), sharex=True)
     ax=axs[0,0]
     ax.plot(t, C, label="C")
     ax.plot(t, eK, label="epsK")
@@ -71,7 +73,7 @@ def plot_budgets_from_data(data):
 
     plt.tight_layout()
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.plot(t, eK, label="epsK")
     ax.plot(t, eP, label="epsP")
     ax.plot(t, eT, label="epsT")
@@ -88,7 +90,7 @@ def plot_background_evolution(model, ncfile, n=10):
     ds = xr.load_dataset(ncfile)
     nt = len(ds.t)
     idx = np.linspace(0,nt-1,n, dtype="i")
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     for k in idx:
         load_from_restart(model,ncfile,k)
         dissip.update_background()

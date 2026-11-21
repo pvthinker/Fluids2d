@@ -236,7 +236,7 @@ def get_rhs_and_diag(param, mesh):
 
 
 def addtodocstring(func, rhs, supplementarydoc):
-    func.__doc__ = "\n".join([rhs.__doc__, supplementarydoc])
+    func.__doc__ = f"{rhs.__doc__}\n{supplementarydoc}"
 
 
 def addtracerequation(param, mesh, rhs, tracername):

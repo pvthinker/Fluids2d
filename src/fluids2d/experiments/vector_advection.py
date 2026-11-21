@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image
+
 import fluids2d as f2d
 from fluids2d.integrators import copyto
 
@@ -31,7 +31,7 @@ def set_initial_vector(model):
 def fliptime(model):
     s = model.state
     if model.integrator == "LFRA":
-        sb, sa, ds = model.integrator.scratch
+        sb, sa, _ = model.integrator.scratch
         copyto(s, sa)
         copyto(sb, s)
         copyto(sa, s)
@@ -44,7 +44,6 @@ def fliptime(model):
 
 if __name__ == "__main__":
 
-    import matplotlib.pyplot as plt
     # plt.ion()
 
     param = f2d.Param()

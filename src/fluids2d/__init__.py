@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .param import Param
-from .model import Model
-from . import tools
+from . import tools as tools
+from .model import Model as Model
+from .param import Param as Param

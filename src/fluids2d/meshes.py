@@ -1,5 +1,7 @@
-import numpy as np
 from collections import namedtuple
+
+import numpy as np
+
 from .elliptic import *
 from .noslip import get_slipcoef
 

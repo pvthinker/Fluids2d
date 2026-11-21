@@ -1,14 +1,17 @@
-import numpy as np
 import signal
 from time import time
+
+import numpy as np
+
+from .animation import Figure
+from .callbacks import Callback
+from .equations import addforcingterm
+from .integrators import get_integrator
+from .io import IO
 from .meshes import Mesh
 from .states import State
-from .integrators import get_integrator
 from .timeline import Time
-from .animation import Figure
-from .io import IO
-from .equations import addforcingterm
-from .callbacks import Callback
+
 
 class Model:
     def __init__(self, param):

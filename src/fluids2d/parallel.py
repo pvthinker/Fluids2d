@@ -1,4 +1,4 @@
-from numba import jit, prange, set_num_threads, config
+from numba import config, jit, prange, set_num_threads
 
 _nthreads = config.NUMBA_DEFAULT_NUM_THREADS
 set_num_threads(_nthreads)

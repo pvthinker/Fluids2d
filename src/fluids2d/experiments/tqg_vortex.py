@@ -1,6 +1,7 @@
 import numpy as np
+
 import fluids2d as f2d
-from fluids2d.operators import compute_vorticity, verticestocenters, perpgrad
+from fluids2d.operators import compute_vorticity, perpgrad, verticestocenters
 
 """
 The TQG vortex instability from Carton et al. 2025 (figure 4)

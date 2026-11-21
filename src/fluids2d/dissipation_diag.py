@@ -1,7 +1,7 @@
 import numpy as np
-import xarray as xr
+
+from fluids2d.operators import addvortexforce, tracflux
 from fluids2d.states import allocate_var
-from fluids2d.operators import tracflux, addvortexforce
 
 from .background_profile import BackgroundProfile
 

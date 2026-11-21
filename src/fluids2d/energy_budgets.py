@@ -1,7 +1,9 @@
 import numpy as np
 import xarray as xr
-from .restart_tools import load_from_restart
+
 from .dissipation_diag import Dissipation, crop
+from .restart_tools import load_from_restart
+
 
 class EnergyBudget:
     def __init__(self, model, nt=1000):
@@ -13,7 +15,7 @@ class EnergyBudget:
             self.Qforc = model.state.b*0
 
         self.allocate(nt)
-        x, self.z = model.mesh.xy("cc")
+        _, self.z = model.mesh.xy("cc")
         self.state = model.state
         self.dx = model.mesh.dx
         self.dy = model.mesh.dy

@@ -1,6 +1,6 @@
 import numpy as np
-from scipy import sparse
 import scipy.sparse.linalg as splinalg
+from scipy import sparse
 
 
 class Poisson1d:
@@ -21,7 +21,6 @@ class Poisson1d:
     def get_Laplacian(self):
         nz = self.mesh.ny
         dx = self.mesh.dx
-        dz = self.mesh.dy
 
         xperiodic = self.mesh.param.xperiodic
         n1 = self.mesh.shape[-1]

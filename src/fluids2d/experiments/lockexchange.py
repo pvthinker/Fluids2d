@@ -1,4 +1,5 @@
 import numpy as np
+
 import fluids2d as f2d
 from fluids2d.equations import fill
 
@@ -7,7 +8,7 @@ def step(x, x0, dx): return np.tanh((x-x0)/(3*dx))
 
 
 def set_initial_buoyancy(model):
-    x, y = model.mesh.xy("c")
+    x, _ = model.mesh.xy("c")
     b = model.state.b
     Lx = model.param.Lx
     b[:, :] = step(x, Lx/2, model.mesh.dx) + 1e-8*np.random.normal(size=b.shape)
