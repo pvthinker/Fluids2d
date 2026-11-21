@@ -12,3 +12,14 @@ myexp
 
 # NetCDF file -> shouldn't be any
 *.nc
+
+# Media and scratch outputs (experiments)
+*.mp4
+*.mpg
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# scratch notebook in experiments
+src/fluids2d/experiments/Untitled.ipynb

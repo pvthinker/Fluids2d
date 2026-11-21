@@ -75,7 +75,7 @@ python -m pip install -e .
 Copy the folder of experiments and work in it
 ```console
 cd fluids2d
-cp -pR src/experiments  myexp
+cp -pR src/fluids2d/experiments  myexp
 cd myexp
 python vortex.py
 ```
