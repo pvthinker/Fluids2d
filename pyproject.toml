@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = 'A versatile Python CFD code that solves a large class of 2D flows'
 readme = "README.md"
 license = "MIT"
+requires-python = ">=3.9"
 keywords = ["CFD", "Geophysical Fluid Dynamics", "Fluid Solver"]
 authors = [
   { name = "Guillaume Roullet", email = "roullet@univ-brest.fr" },
@@ -21,11 +22,13 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-	     "numpy",
-	     "scipy",
 	     "matplotlib",
+	     "netCDF4",
 	     "numba",
-	     "netCDF4"
+	     "numpy",
+	     "pillow",
+	     "scipy",
+	     "xarray"
 ]
 
 [project.optional-dependencies]
