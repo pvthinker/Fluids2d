@@ -1,7 +1,7 @@
 # Fluids2d
 
-[![PyPI - Version](https://img.shields.io/pypi/v/fluids2d.svg)](https://pypi.org/project/fluids2d)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fluids2d.svg)](https://pypi.org/project/fluids2d)
+[![Version](https://img.shields.io/github/v/tag/pvthinker/Fluids2d)](https://github.com/pvthinker/Fluids2d/tags)
+[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://github.com/pvthinker/Fluids2d)
 
 -----
 
