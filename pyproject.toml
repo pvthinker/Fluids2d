@@ -68,9 +68,7 @@ extend-exclude = [
     "src/fluids2d/plot_diags_v0.py",
 ]
 
-[tool.ruff.lint]
-per-file-ignores = {
-    # star imports keep the equations registry readable
-    "src/fluids2d/equations.py" = ["F403", "F405"],
-    "src/fluids2d/meshes.py" = ["F403", "F405"],
-}
+[tool.ruff.lint.per-file-ignores]
+# star imports keep the equations registry readable
+"src/fluids2d/equations.py" = ["F403", "F405"]
+"src/fluids2d/meshes.py" = ["F403", "F405"]
