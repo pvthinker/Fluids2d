@@ -28,6 +28,9 @@ dependencies = [
 	     "netCDF4"
 ]
 
+[project.optional-dependencies]
+dev = ["ruff", "pre-commit"]
+
 [project.urls]
 Documentation = "https://github.com/pvthinker/fluids2d#readme"
 Issues = "https://github.com/pvthinker/fluids2d/issues"
@@ -35,3 +38,36 @@ Source = "https://github.com/pvthinker/fluids2d"
 
 [tool.hatch.version]
 path = "src/fluids2d/__about__.py"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+extend-exclude = [
+    "*.ipynb",
+    "src/fluids2d/experiments/inpreparation",
+    "src/fluids2d/experiments/hconv_ref",
+    "src/fluids2d/experiments/horiz_longrun",
+    # scratch / drafts (not versioned)
+    "src/fluids2d/experiments/toto.py",
+    "src/fluids2d/experiments/geos_adj_fdse.py",
+    "src/fluids2d/experiments/geos_adj_fdse2026.py",
+    "src/fluids2d/experiments/dambreak.py",
+    "src/fluids2d/experiments/rayleigh_taylor.py",
+    "src/fluids2d/experiments/tidal_wave.py",
+    "src/fluids2d/experiments/tracer_fdse.py",
+    "src/fluids2d/experiments/vortex_fdse.py",
+    "src/fluids2d/experiments/warm_bubble_v0.py",
+    "src/fluids2d/experiments/horizconv.py",
+    "src/fluids2d/experiments/lockexchange_fall.py",
+    "src/fluids2d/background_profile_v0.py",
+    "src/fluids2d/background_profile_v1.py",
+    "src/fluids2d/meanstate.py",
+    "src/fluids2d/plot_diags_v0.py",
+]
+
+[tool.ruff.lint]
+per-file-ignores = {
+    # star imports keep the equations registry readable
+    "src/fluids2d/equations.py" = ["F403", "F405"],
+    "src/fluids2d/meshes.py" = ["F403", "F405"],
+}
